@@ -142,11 +142,25 @@ public class HL7Message extends ArrayList<HL7Segment> {
         msa.setField(0, "MSA");
         msa.setField(1, ackCode);
         msa.setField(2, msh.getMessageControlID());
-        msa.setField(3, text != null && text.length() > 80 ? text.substring(0, 80) : text);
-        HL7Message ack = new HL7Message(2);
+        HL7Message ack = new HL7Message(3);
         ack.add(ackmsh);
         ack.add(msa);
+        if (isErrorOrReject(ackCode)) {
+            String requiredFieldMissing = "101";
+            String applicationInternalError = "207";
+            HL7Segment err = new HL7Segment(4, msh.getFieldSeparator(),
+                    msh.getEncodingCharacters());
+            err.setField(0, "ERR");
+            err.setField(3, ackCode.equals(HL7Exception.AR) ? requiredFieldMissing : applicationInternalError);
+            err.setField(4, "E");
+            err.setField(8, text != null && text.length() > 250 ? text.substring(0, 250) : text);
+            ack.add(err);
+        }
         return ack;
+    }
+
+    private static boolean isErrorOrReject(String ackCode) {
+        return ackCode.equals(HL7Exception.AE) || ackCode.equals(HL7Exception.AR);
     }
 
     public static HL7Message makePixQuery(String pid, String... domains) {
