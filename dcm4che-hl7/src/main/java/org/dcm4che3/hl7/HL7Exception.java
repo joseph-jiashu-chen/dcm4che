@@ -51,9 +51,14 @@ public class HL7Exception extends Exception {
     public static final String AE = "AE";
 
     private final String ack;
+    private String hl7ErrorCode;
 
     public HL7Exception(String ack) {
         this.ack = ack;
+    }
+
+    public HL7Exception() {
+        this.ack = HL7Exception.AA;
     }
 
     public HL7Exception(String ack, String message) {
@@ -61,9 +66,21 @@ public class HL7Exception extends Exception {
         this.ack = ack;
     }
 
+    public HL7Exception(String ack, String errorCode, String message) {
+        super(message);
+        this.ack = ack;
+        this.hl7ErrorCode = errorCode;
+    }
+
     public HL7Exception(String ack, Throwable cause) {
         super(cause);
         this.ack = ack;
+    }
+
+    public HL7Exception(String ack, String errorCode, Throwable cause) {
+        super(cause);
+        this.ack = ack;
+        this.hl7ErrorCode = errorCode;
     }
 
     public final String getAcknowledgmentCode() {
@@ -76,6 +93,10 @@ public class HL7Exception extends Exception {
         while ((nextCause = finalCause.getCause()) != null)
             finalCause = nextCause;
         return finalCause.getMessage();
+    }
+
+    public final String getHL7ErrorCode() {
+        return hl7ErrorCode;
     }
 
 }

@@ -237,17 +237,17 @@ public class HL7Application implements Serializable {
     byte[] onMessage(Connection conn, Socket s, UnparsedHL7Message msg) throws HL7Exception {
         HL7Segment msh = msg.msh();
         if (!(isInstalled() && conns.contains(conn)))
-            throw new HL7Exception(HL7Exception.AR, "Receiving Application not recognized");
+            throw new HL7Exception(HL7Exception.AR, "207", "Receiving Application not recognized");
         if (!(acceptedSendingApplications.isEmpty()
                 || acceptedSendingApplications.contains(msh.getSendingApplicationWithFacility())))
-            throw new HL7Exception(HL7Exception.AR, "Sending Application not recognized");
+            throw new HL7Exception(HL7Exception.AR, "207", "Sending Application not recognized");
         if (!(acceptedMessageTypes.contains("*")
                 || acceptedMessageTypes.contains(msh.getMessageType())))
-            throw new HL7Exception(HL7Exception.AR, "Message Type not supported");
+            throw new HL7Exception(HL7Exception.AR, "200", "Message Type not supported");
 
         HL7MessageListener listener = getHL7MessageListener();
         if (listener == null)
-            throw new HL7Exception(HL7Exception.AE, "No HL7 Message Listener configured");
+            throw new HL7Exception(HL7Exception.AE, "207", "No HL7 Message Listener configured");
         return listener.onMessage(this, conn, s, msg);
     }
 

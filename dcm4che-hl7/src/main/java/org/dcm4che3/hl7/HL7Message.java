@@ -127,6 +127,10 @@ public class HL7Message extends ArrayList<HL7Segment> {
     }
 
     public static HL7Message makeACK(HL7Segment msh, String ackCode, String text) {
+        return makeACK(msh, new HL7Exception());
+    }
+
+    public static HL7Message makeACK(HL7Segment msh, HL7Exception e) {
         int size = msh.size();
         HL7Segment ackmsh = HL7Segment.makeMSH(size, msh.getFieldSeparator(),
                 msh.getEncodingCharacters());
@@ -140,20 +144,20 @@ public class HL7Message extends ArrayList<HL7Segment> {
         HL7Segment msa = new HL7Segment(4, msh.getFieldSeparator(),
                 msh.getEncodingCharacters());
         msa.setField(0, "MSA");
+        String ackCode = e.getAcknowledgmentCode();
         msa.setField(1, ackCode);
         msa.setField(2, msh.getMessageControlID());
         HL7Message ack = new HL7Message(3);
         ack.add(ackmsh);
         ack.add(msa);
         if (isErrorOrReject(ackCode)) {
-            String requiredFieldMissing = "101";
-            String applicationInternalError = "207";
             HL7Segment err = new HL7Segment(4, msh.getFieldSeparator(),
                     msh.getEncodingCharacters());
             err.setField(0, "ERR");
-            err.setField(3, ackCode.equals(HL7Exception.AR) ? requiredFieldMissing : applicationInternalError);
+            err.setField(3, e.getHL7ErrorCode());
             err.setField(4, "E");
-            err.setField(8, text != null && text.length() > 250 ? text.substring(0, 250) : text);
+            String errorMessage = e.getErrorMessage();
+            err.setField(8, errorMessage != null && errorMessage.length() > 250 ? errorMessage.substring(0, 250) : errorMessage);
             ack.add(err);
         }
         return ack;

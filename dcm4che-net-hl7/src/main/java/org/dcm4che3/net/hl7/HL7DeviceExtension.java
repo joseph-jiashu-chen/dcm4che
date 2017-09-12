@@ -128,7 +128,7 @@ public class HL7DeviceExtension extends DeviceExtension {
     byte[] onMessage(Connection conn, Socket s, UnparsedHL7Message msg) throws HL7Exception {
         HL7Application hl7App = getHL7Application(msg.msh().getReceivingApplicationWithFacility(), true);
         if (hl7App == null)
-            throw new HL7Exception(HL7Exception.AR, "Receiving Application not recognized");
+            throw new HL7Exception(HL7Exception.AR, "207", "Receiving Application not recognized");
         return hl7App.onMessage(conn, s, msg);
     }
 
